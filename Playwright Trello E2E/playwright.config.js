@@ -6,7 +6,7 @@ const config = {
   // reporter: "./reporter.js",
   workers: 4,
   use: {
-    baseURL: "https://trello.com/",
+    baseURL: "https://trello.com",
     headless: true,
     viewport: { width: 1200, height: 720 },
     video: "off",

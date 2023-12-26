@@ -1,9 +1,28 @@
 const { test, expect } = require("@playwright/test");
 const { url } = require("inspector");
 
-test.describe("Trellos", () => {
+test.skip("Authentication", async ({ page }) => {
+  await page.goto(
+    "https://id.atlassian.com/login?application=trello&continue=https%3A%2F%2Ftrello.com%2Fauth%2Fatlassian%2Fcallback%3Fdisplay%3DeyJ2ZXJpZmljYXRpb25TdHJhdGVneSI6InNvZnQifQ%253D%253D&display=eyJ2ZXJpZmljYXRpb25TdHJhdGVneSI6InNvZnQifQ%3D%3D"
+  );
+  await page.click('//input[@id="username"]');
+  await page.locator('//input[@id="username"]').fill("YOUR USERNAME");
+  await page.click('//button[@id="login-submit"]');
+  await page.click('//input[@id="password"]');
+  await page.locator('//input[@id="password"]').fill("YOUR PASSWORD");
+  await page.click('//button[@id="login-submit"]');
+
+  const pageIsOpened = page.locator(
+    '//button[@data-testid="header-create-menu-button"]'
+  );
+  await expect(pageIsOpened).toBeVisible({ timeout: 10000 });
+
+  await page.context().storageState({ path: "authFile.json" });
+});
+
+test.describe("Trello", () => {
   test.use({
-    storageState: "auth.json",
+    storageState: "authFile.json",
   });
 
   test.beforeEach(async ({ page }) => {
@@ -121,5 +140,16 @@ test.describe("Trellos", () => {
     await page.click('//span[@class="icon-home icon-sm _BwhWIRGqM8j8m"]');
 
     await expect(page).toHaveURL("https://trello.com/");
+  });
+
+  test("Log Out", async ({ page }) => {
+    await page.click('//div[@data-testid="header-member-menu-avatar"]');
+    await page.click('//button[@data-testid="account-menu-logout"]');
+    await page.click('//button[@id="logout-submit"]');
+
+    const logOut = page.locator(
+      '//a[@data-uuid="MJFtCCgVhXrVl7v9HA7EH_login"]'
+    );
+    await expect(logOut).toBeVisible();
   });
 });
